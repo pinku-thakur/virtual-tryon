@@ -163,3 +163,46 @@ def _fallback_recommendation(
         return f"AI Suggests: Complement your {clothing_type} with neutral accessories — a leather watch, clean sneakers, and a slim belt work well."
 
     return "AI Suggests: White sneakers, a brown leather watch, and a minimal chain create a versatile look for any occasion."
+
+
+async def analyze_vto_images(person_b64: str, garment_b64: str) -> str:
+    """Analyze person and garment images to output VTO metadata and coordinates using Gemini."""
+    model = _get_model()
+    if not model:
+        return '{"error": "Gemini API key not configured"}'
+        
+    try:
+        content = [
+            "Role: Expert Computer Vision Engineer specializing in Virtual Try-On (VTO). Task: Analyze the provided person image and garment image to generate a realistic overlay. Context: Using Supabase for storage and a GAN/Diffusion-based warping pipeline. Workflow: 1. Segment human body parts. 2. Estimate 2D/3D pose keypoints. 3. Warp garment to match leg geometry and pose. 4. Blend using lighting-aware synthesis. Constraints: Maintain fabric texture; preserve original person’s skin tone and background; output high-resolution result. Format: Return JSON metadata for coordinates and the final processed image URL."
+        ]
+        
+        # Process and attach Person image
+        if "base64," in person_b64:
+            person_b64 = person_b64.split("base64,")[1]
+        p_bytes = base64.b64decode(person_b64)
+        p_img = Image.open(io.BytesIO(p_bytes))
+        content.append("Person Image:")
+        content.append(p_img)
+        
+        # Process and attach Garment image
+        if "base64," in garment_b64:
+            garment_b64 = garment_b64.split("base64,")[1]
+        g_bytes = base64.b64decode(garment_b64)
+        g_img = Image.open(io.BytesIO(g_bytes))
+        content.append("Garment Image:")
+        content.append(g_img)
+
+        response = model.generate_content(content)
+        
+        # Try to parse the markdown block out if the AI wrapped it in ```json
+        result_text = response.text.strip()
+        if result_text.startswith("```json"):
+            result_text = result_text.split("```json")[1].split("```")[0].strip()
+        elif result_text.startswith("```"):
+            result_text = result_text.split("```")[1].split("```")[0].strip()
+
+        logger.info("Gemini VTO Analysis generated successfully")
+        return result_text
+    except Exception as e:
+        logger.error(f"Gemini VTO Analysis failed: {e}")
+        return '{"error": "Failed to analyze images"}'

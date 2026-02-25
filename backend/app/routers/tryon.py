@@ -10,6 +10,8 @@ from app.models.schemas import TryOnResponse
 from app.services.tryon_service import process_tryon
 from app.utils.image_utils import save_upload_to_temp, save_base64_to_storage
 from app.utils.hf_errors import HFTokenError
+import base64
+from app.services.gemini_service import analyze_vto_images
 
 logger = logging.getLogger(__name__)
 
@@ -72,3 +74,34 @@ async def try_on(
     except Exception as e:
         logger.error(f"Try-on failed: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post(
+    "/analyze_vto",
+    summary="Analyze VTO images via Gemini",
+    description="Analyze the provided person image and garment image using an Expert Computer Vision prompt. Returns a JSON format with VTO metadata.",
+)
+async def analyze_vto(
+    person_image: UploadFile = File(..., description="Photo of the person"),
+    garment_image: UploadFile = File(..., description="Photo of the clothing item"),
+) -> JSONResponse:
+    try:
+        p_bytes = await person_image.read()
+        g_bytes = await garment_image.read()
+        
+        p_b64 = base64.b64encode(p_bytes).decode("utf-8")
+        g_b64 = base64.b64encode(g_bytes).decode("utf-8")
+        
+        json_resp_str = await analyze_vto_images(p_b64, g_b64)
+        
+        import json
+        try:
+            parsed_json = json.loads(json_resp_str)
+            return JSONResponse(status_code=200, content=parsed_json)
+        except json.JSONDecodeError:
+            # If the LLM failed to output strictly valid JSON, return as text inside a JSON wrapper
+            return JSONResponse(status_code=200, content={"status": "success", "raw": json_resp_str})
+    except Exception as e:
+        logger.error(f"VTO Analysis routing failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
