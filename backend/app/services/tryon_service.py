@@ -100,43 +100,54 @@ async def _real_tryon(
         logger.info(f"Using HF token from: {token_source}")
 
         try:
-            client = Client("yisol/IDM-VTON", token=token) if token else Client("yisol/IDM-VTON")
+            if category in ("lower_body", "dresses"):
+                logger.info(f"Routing to OOTDiffusion for category: {category}")
+                ootd_cat = "Lower-body" if category == "lower_body" else "Dress"
+                client = Client("levihsu/OOTDiffusion", token=token) if token else Client("levihsu/OOTDiffusion")
+                
+                result = client.predict(
+                    vton_img=handle_file(str(person_path)),
+                    garm_img=handle_file(str(clothing_path)),
+                    category=ootd_cat,
+                    n_samples=1,
+                    n_steps=20,
+                    image_scale=2.0,
+                    seed=-1,
+                    api_name="/process_dc"
+                )
+                output_image_path = result[0]["image"]
+            else:
+                logger.info("Routing to IDM-VTON for upper body try-on")
+                client = Client("yisol/IDM-VTON", token=token) if token else Client("yisol/IDM-VTON")
+                
+                result = client.predict(
+                    dict={
+                        "background": handle_file(str(person_path)),
+                        "layers": [],
+                        "composite": None,
+                    },
+                    garm_img=handle_file(str(clothing_path)),
+                    garment_des="shirt",
+                    is_checked=True,
+                    is_checked_crop=False,
+                    denoise_steps=30,
+                    seed=42,
+                    api_name="/tryon",
+                )
+                output_image_path = result[0]
+                
         except Exception as e:
             if _is_hf_token_error(e):
                 raise HFTokenError(
-                    "Your HuggingFace token is invalid or has been rate-limited. "
+                    "HuggingFace API token invalid or rate limit reached. "
                     "Please provide a valid token to continue."
                 )
             raise ConnectionError(
-                f"Cannot connect to IDM-VTON space (it may be sleeping or your network is blocking it). "
-                f"Try again in a minute, or set USE_MOCK_AI=True in .env for local testing. Error: {e}"
+                f"Cannot connect to AI space (it may be sleeping or overloaded). "
+                f"Try again in a minute. Error: {e}"
             )
 
-        try:
-            result = client.predict(
-                dict={
-                    "background": handle_file(str(person_path)),
-                    "layers": [],
-                    "composite": None,
-                },
-                garm_img=handle_file(str(clothing_path)),
-                garment_des=category,
-                is_checked=True,
-                is_checked_crop=False,
-                denoise_steps=30,
-                seed=42,
-                api_name="/tryon",
-            )
-        except Exception as e:
-            if _is_hf_token_error(e):
-                raise HFTokenError(
-                    "HuggingFace API rate limit reached or token expired. "
-                    "Please provide a valid HuggingFace token to continue."
-                )
-            raise  # Re-raise non-token errors
-
-        # result is a tuple: (output_image_path, masked_image_path)
-        return result[0]
+        return output_image_path
 
     loop = asyncio.get_event_loop()
     try:
