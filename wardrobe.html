@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>My Wardrobe - AI Try-On</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Browse and manage your saved virtual try-on outfits in your digital wardrobe." />
+  <link rel="stylesheet" href="style/style.css" />
+  <link rel="stylesheet" href="style/wardrobe.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+</head>
+
+<body>
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <button id="theme-toggle-btn" class="theme-toggle-btn">🌙</button>
+    <ul class="nav-links">
+      <li><a href="tryon.html">Home</a></li>
+      <li><a href="#" class="active">Wardrobe</a></li>
+      <li><a href="profile.html">Profile</a></li>
+    </ul>
+    <div class="logo">AI Try-On</div>
+    <div class="user-menu" id="user-info-nav">
+      <!-- User info injected here -->
+      <button onclick="logout()" class="nav-btn">Logout</button>
+    </div>
+  </nav>
+
+  <div class="main-wrapper" style="display: block; overflow-y: auto;">
+    <div class="wardrobe-container">
+      <header
+        style="display: flex; align-items: center; justify-content: center; gap: 20px; flex-wrap: wrap; margin-bottom: 2rem;">
+        <div class="css-wardrobe" style="margin: 20px 30px;">
+          <div class="wardrobe-body">
+            <div class="clothes-rack">
+              <div class="hanger hanger-1"></div>
+              <div class="hanger hanger-2"></div>
+              <div class="hanger hanger-3"></div>
+            </div>
+            <!-- Removed Flying Cloths -->
+            <div class="wardrobe-door door-left">
+              <div class="door-handle"></div>
+            </div>
+            <div class="wardrobe-door door-right">
+              <div class="door-handle"></div>
+            </div>
+          </div>
+        </div>
+        <div style="text-align: left;">
+          <h1
+            style="font-size: 2.5rem; background: linear-gradient(135deg, var(--primary), #ec4899); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+            My Digital Closet</h1>
+          <p class="wardrobe-subtitle" style="font-size: 1.1rem; color: var(--text-muted);">Your saved virtual try-on
+            looks curated for you.</p>
+        </div>
+      </header>
+
+      <!-- Filters -->
+      <div class="filters">
+        <div class="filter-group">
+          <label>Combo Style</label>
+          <select id="style-filter">
+            <option value="">All Styles</option>
+            <option value="formal">Formal</option>
+            <option value="casual">Casual</option>
+            <option value="party">Party</option>
+            <option value="streetwear">Streetwear</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label>Accessory Used</label>
+          <select id="accessory-filter">
+            <option value="">Any</option>
+            <option value="glasses">Glasses</option>
+            <option value="watch">Watch</option>
+            <option value="chain">Chain</option>
+          </select>
+        </div>
+
+        <button class="btn filter-btn" onclick="applyFilters()">Apply Filters</button>
+        <button class="btn reset-btn" onclick="resetFilters()">Reset</button>
+      </div>
+
+      <div id="wardrobe-list" class="outfits-section">
+        <!-- Outfits will appear here -->
+        <p style="text-align:center; color: var(--text-muted); grid-column: 1 / -1; padding: 40px 0;">Loading...</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/theme.js"></script>
+  <script type="module" src="js/wardrobe.js?v=639072931255949863"></script>
+  <script src="js/network-status.js"></script>
+</body>
+
+</html>

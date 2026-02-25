@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login - AI Virtual Try-On</title>
+  <meta name="description" content="Login to AI Virtual Try-On — your AI-powered personal styling assistant." />
+  <link rel="stylesheet" href="style/login.css" />
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<body>
+  <div class="login-container">
+    <div class="brand-header">
+      <span class="brand-icon">👗</span>
+      <h1>AI Virtual Try-On</h1>
+    </div>
+    <div class="form-box">
+      <h2>Welcome Back</h2>
+      <form id="login-form">
+        <div class="input-group">
+          <input type="email" id="email" placeholder=" " required />
+          <label for="email">Email</label>
+        </div>
+        <div class="input-group">
+          <input type="password" id="password" placeholder=" " required />
+          <label for="password">Password</label>
+        </div>
+        <button type="submit" class="btn">Login</button>
+      </form>
+      <p class="signup-link" style="margin-top: 12px; font-size: 0.85em;">
+        <a href="#" id="forgot-password-link">Forgot Password?</a>
+      </p>
+      <p class="signup-link">Don't have an account? <a href="signup.html">Sign Up</a></p>
+    </div>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div id="loading-overlay">
+    <div class="spinner"></div>
+    <p class="loading-text">Please wait...</p>
+  </div>
+
+  <script type="module" src="js/login.js"></script>
+  <script src="js/network-status.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,17 @@
+# Core
+fastapi
+uvicorn[standard]
+python-multipart
+python-dotenv
+pydantic-settings
+
+# AI — Try-On
+gradio_client
+Pillow
+
+# AI — Gemini Recommendations
+google-generativeai
+
+# Testing
+pytest
+httpx

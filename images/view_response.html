@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Try-On Result</title>
+  <style>
+    body { background: #1a1a2e; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; font-family: sans-serif; }
+    .card { background: #16213e; padding: 24px; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.4); text-align: center; }
+    h2 { color: #e94560; margin: 0 0 16px; }
+    img { max-width: 500px; max-height: 600px; border-radius: 12px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>Try-On Result</h2>
+    <img id="result" />
+    <script>
+      fetch('response_1771141309104.json')
+        .then(r => r.json())
+        .then(data => { document.getElementById('result').src = data.image; });
+    </script>
+  </div>
+</body>
+</html>
